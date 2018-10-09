@@ -7,18 +7,67 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController, UITextFieldDelegate {
+
+    var player: AVPlayer?
+    var playerLayer: AVPlayerLayer?
+    var isVideoPlaying = false
+    var isMuteSound = false
+    var enterUrl = ""
+    // url: http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.init(red: 8/255, green: 21/255, blue: 35/255, alpha: 1)
 
+        urlTextField.delegate = self
+        self.setAutoLayout()
+    }
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        playerLayer?.frame = self.playerView.bounds
+
+    }
+
+    func setupPlayerView(url: String) {
+        if let url = URL(string: url) {
+            player = AVPlayer(url: url)
+            playerLayer = AVPlayerLayer(player: player)
+            playerLayer?.videoGravity = .resizeAspect
+
+            if let playerLayer = playerLayer {
+
+                self.playerView.layer.addSublayer(playerLayer)
+                player?.play()
+                player?.addObserver(self, forKeyPath: "playerIsPlaying", options: [.initial], context: nil)
+            }
+        }
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "playerIsPlaying" {
+            playButton.setTitle("Pause", for: .normal)
+            isVideoPlaying = true
+        }
+        if keyPath == "enterUrl" {
+            self.setupPlayerView(url: enterUrl)
+        }
+    }
+    func setAutoLayout() {
         urlBarView.addSubview(urlTextField)
         barView.addSubview(playButton)
         barView.addSubview(muteButton)
         self.view.addSubview(urlBarView)
         self.view.addSubview(barView)
+        self.view.addSubview(playerView)
 
         var constraints = [NSLayoutConstraint]()
 
@@ -43,12 +92,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
         constraints.append(muteButton.centerYAnchor.constraint(equalTo: barView.centerYAnchor))
         constraints.append(muteButton.trailingAnchor.constraint(equalTo: barView.trailingAnchor, constant: -20))
 
+        constraints.append(playerView.topAnchor.constraint(equalTo: urlBarView.bottomAnchor))
+        constraints.append(playerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
+        constraints.append(playerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
+        constraints.append(playerView.bottomAnchor.constraint(equalTo: barView.topAnchor))
+
         NSLayoutConstraint.activate(constraints)
     }
 
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
+    let playerView: UIView = {
+        var playerView = UIView()
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        return playerView
+    }()
 
     let urlBarView: UIView = {
 
@@ -103,10 +159,43 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return muteButton
     }()
 
-    @objc func playAction() {
-        print("Play")
+    @objc func playAction(sender: UIButton) {
+
+        if isVideoPlaying {
+            player?.pause()
+            sender.setTitle("Play", for: .normal)
+            isVideoPlaying = false
+        }
+        else {
+            player?.play()
+            sender.setTitle("Pause", for: .normal)
+            isVideoPlaying = true
+            print("Play")
+        }
     }
-    @objc func muteAction() {
-        print("Mute")
+    @objc func muteAction(sender: UIButton) {
+
+        if isMuteSound {
+            player?.isMuted = false
+            isMuteSound = false
+            sender.setTitle("Mute", for: .normal)
+        }
+        else {
+            player?.isMuted = true
+            isMuteSound = true
+            sender.setTitle("UnMute", for: .normal)
+            print("Mute")
+        }
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if let text = urlTextField.text {
+            self.enterUrl = text
+        }
+    }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        textField.addObserver(self, forKeyPath: "enterUrl", options: [.initial], context: nil)
+        return true
     }
 }
