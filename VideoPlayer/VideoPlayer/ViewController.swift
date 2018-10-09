@@ -14,6 +14,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     var player: AVPlayer?
     var playerLayer: AVPlayerLayer?
     var isVideoPlaying = true
+    var isMuteSound = false
     var enterUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
     // url: http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
 
@@ -150,8 +151,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
             print("Play")
         }
     }
-    @objc func muteAction() {
-        print("Mute")
+    @objc func muteAction(sender: UIButton) {
+
+        if isMuteSound {
+            player?.isMuted = false
+            isMuteSound = false
+            sender.setTitle("Mute", for: .normal)
+        }
+        else {
+            player?.isMuted = true
+            isMuteSound = true
+            sender.setTitle("UnMute", for: .normal)
+            print("Mute")
+        }
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
