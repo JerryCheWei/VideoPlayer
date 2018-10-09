@@ -125,6 +125,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         urlTextField.layer.cornerRadius = 5
         urlTextField.placeholder = "Enter URL of video"
         urlTextField.textAlignment = .center
+        urlTextField.clearButtonMode = .whileEditing
         return urlTextField
     }()
 
