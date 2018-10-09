@@ -7,13 +7,50 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController, UITextFieldDelegate {
+
+    var player: AVPlayer?
+    var playerLayer: AVPlayerLayer?
+    var isVideoPlaying = true
+    var enterUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
+    // url: http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.init(red: 8/255, green: 21/255, blue: 35/255, alpha: 1)
 
+        self.setAutoLayout()
+        self.setupPlayerView(url: enterUrl)
+    }
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        playerLayer?.frame = self.view.bounds
+
+    }
+
+    func setupPlayerView(url: String) {
+        if let url = URL(string: url) {
+            player = AVPlayer(url: url)
+            playerLayer = AVPlayerLayer(player: player)
+            playerLayer?.videoGravity = .resizeAspect
+
+            if let playerLayer = playerLayer {
+
+                self.view.layer.addSublayer(playerLayer)
+                player?.play()
+            }
+        }
+    }
+
+    func setAutoLayout() {
         urlBarView.addSubview(urlTextField)
         barView.addSubview(playButton)
         barView.addSubview(muteButton)
@@ -44,10 +81,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         constraints.append(muteButton.trailingAnchor.constraint(equalTo: barView.trailingAnchor, constant: -20))
 
         NSLayoutConstraint.activate(constraints)
-    }
-
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
     }
 
     let urlBarView: UIView = {
@@ -103,10 +136,27 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return muteButton
     }()
 
-    @objc func playAction() {
-        print("Play")
+    @objc func playAction(sender: UIButton) {
+
+        if isVideoPlaying {
+            player?.pause()
+            sender.setTitle("Play", for: .normal)
+            isVideoPlaying = false
+        }
+        else {
+            player?.play()
+            sender.setTitle("Pause", for: .normal)
+            isVideoPlaying = true
+            print("Play")
+        }
     }
     @objc func muteAction() {
         print("Mute")
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if let text = textField.text {
+             self.enterUrl = text
+        }
     }
 }
