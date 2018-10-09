@@ -13,17 +13,17 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     var player: AVPlayer?
     var playerLayer: AVPlayerLayer?
-    var isVideoPlaying = true
+    var isVideoPlaying = false
     var isMuteSound = false
-    var enterUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"
+    var enterUrl = ""
     // url: http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.init(red: 8/255, green: 21/255, blue: 35/255, alpha: 1)
 
+        urlTextField.delegate = self
         self.setAutoLayout()
-        self.setupPlayerView(url: enterUrl)
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -47,10 +47,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
                 self.playerView.layer.addSublayer(playerLayer)
                 player?.play()
+                player?.addObserver(self, forKeyPath: "playerIsPlaying", options: [.initial], context: nil)
             }
         }
     }
 
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "playerIsPlaying" {
+            playButton.setTitle("Pause", for: .normal)
+            isVideoPlaying = true
+        }
+        if keyPath == "enterUrl" {
+            self.setupPlayerView(url: enterUrl)
+        }
+    }
     func setAutoLayout() {
         urlBarView.addSubview(urlTextField)
         barView.addSubview(playButton)
@@ -179,8 +189,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if let text = textField.text {
-             self.enterUrl = text
+        if let text = urlTextField.text {
+            self.enterUrl = text
         }
+    }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        textField.addObserver(self, forKeyPath: "enterUrl", options: [.initial], context: nil)
+        return true
     }
 }
