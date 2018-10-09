@@ -33,7 +33,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        playerLayer?.frame = self.view.bounds
+        playerLayer?.frame = self.playerView.bounds
 
     }
 
@@ -45,7 +45,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
             if let playerLayer = playerLayer {
 
-                self.view.layer.addSublayer(playerLayer)
+                self.playerView.layer.addSublayer(playerLayer)
                 player?.play()
             }
         }
@@ -57,6 +57,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         barView.addSubview(muteButton)
         self.view.addSubview(urlBarView)
         self.view.addSubview(barView)
+        self.view.addSubview(playerView)
 
         var constraints = [NSLayoutConstraint]()
 
@@ -81,8 +82,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
         constraints.append(muteButton.centerYAnchor.constraint(equalTo: barView.centerYAnchor))
         constraints.append(muteButton.trailingAnchor.constraint(equalTo: barView.trailingAnchor, constant: -20))
 
+        constraints.append(playerView.topAnchor.constraint(equalTo: urlBarView.bottomAnchor))
+        constraints.append(playerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
+        constraints.append(playerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
+        constraints.append(playerView.bottomAnchor.constraint(equalTo: barView.topAnchor))
+
         NSLayoutConstraint.activate(constraints)
     }
+
+    let playerView: UIView = {
+        var playerView = UIView()
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        return playerView
+    }()
 
     let urlBarView: UIView = {
 
