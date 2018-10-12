@@ -61,6 +61,35 @@ class ViewController: UIViewController, UITextFieldDelegate {
             self.setupPlayerView(url: enterUrl)
         }
     }
+
+    override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
+        self.rotated()
+    }
+
+    func rotated() {
+        if UIDeviceOrientationIsPortrait(UIDevice.current.orientation) {
+            topAnchor?.constant = 0
+
+            UIView.animate(withDuration: 0.5, delay: 0.2, options: .curveEaseOut, animations: {
+
+                self.view.layoutIfNeeded()
+
+            }, completion: nil)
+        }
+
+        if UIDeviceOrientationIsLandscape(UIDevice.current.orientation) {
+            topAnchor?.constant -= 80
+
+            UIView.animate(withDuration: 0.5, delay: 0.2, options: .curveEaseOut, animations: {
+
+                self.view.layoutIfNeeded()
+
+            }, completion: nil)
+        }
+    }
+
+    var topAnchor: NSLayoutConstraint?
+
     func setAutoLayout() {
         urlBarView.addSubview(urlTextField)
         barView.addSubview(playButton)
@@ -69,35 +98,33 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.view.addSubview(barView)
         self.view.addSubview(playerView)
 
-        var constraints = [NSLayoutConstraint]()
+        topAnchor = urlBarView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor)
+        topAnchor?.isActive = true
+        urlBarView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        urlBarView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        urlBarView.heightAnchor.constraint(equalToConstant: 60).isActive = true
 
-        constraints.append(urlBarView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor))
-        constraints.append(urlBarView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
-        constraints.append(urlBarView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(urlBarView.heightAnchor.constraint(equalToConstant: 60))
+        urlTextField.centerYAnchor.constraint(equalTo: urlBarView.centerYAnchor).isActive = true
+        urlTextField.leadingAnchor.constraint(equalTo: urlBarView.leadingAnchor, constant: 8).isActive = true
+        urlTextField.trailingAnchor.constraint(equalTo: urlBarView.trailingAnchor, constant: -8).isActive = true
+        urlTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-        constraints.append(urlTextField.centerYAnchor.constraint(equalTo: urlBarView.centerYAnchor))
-        constraints.append(urlTextField.leadingAnchor.constraint(equalTo: urlBarView.leadingAnchor, constant: 8))
-        constraints.append(urlTextField.trailingAnchor.constraint(equalTo: urlBarView.trailingAnchor, constant: -8))
-        constraints.append(urlTextField.heightAnchor.constraint(equalToConstant: 30))
+        barView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        barView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        barView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        barView.heightAnchor.constraint(equalToConstant: 60).isActive = true
 
-        constraints.append(barView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
-        constraints.append(barView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
-        constraints.append(barView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(barView.heightAnchor.constraint(equalToConstant: 60))
+        playButton.centerYAnchor.constraint(equalTo: barView.centerYAnchor).isActive = true
+        playButton.leadingAnchor.constraint(equalTo: barView.leadingAnchor, constant: 20).isActive = true
 
-        constraints.append(playButton.centerYAnchor.constraint(equalTo: barView.centerYAnchor))
-        constraints.append(playButton.leadingAnchor.constraint(equalTo: barView.leadingAnchor, constant: 20))
+        muteButton.centerYAnchor.constraint(equalTo: barView.centerYAnchor).isActive = true
+        muteButton.trailingAnchor.constraint(equalTo: barView.trailingAnchor, constant: -20).isActive = true
 
-        constraints.append(muteButton.centerYAnchor.constraint(equalTo: barView.centerYAnchor))
-        constraints.append(muteButton.trailingAnchor.constraint(equalTo: barView.trailingAnchor, constant: -20))
+        playerView.topAnchor.constraint(equalTo: urlBarView.bottomAnchor).isActive = true
+        playerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        playerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        playerView.bottomAnchor.constraint(equalTo: barView.topAnchor).isActive = true
 
-        constraints.append(playerView.topAnchor.constraint(equalTo: urlBarView.bottomAnchor))
-        constraints.append(playerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
-        constraints.append(playerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(playerView.bottomAnchor.constraint(equalTo: barView.topAnchor))
-
-        NSLayoutConstraint.activate(constraints)
     }
 
     let playerView: UIView = {
