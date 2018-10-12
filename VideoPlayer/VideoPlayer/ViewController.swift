@@ -24,6 +24,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
         urlTextField.delegate = self
         self.setAutoLayout()
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
