@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 
-class ViewController: UIViewController, UITextFieldDelegate {
+class VideoPlayerVC: UIViewController, UITextFieldDelegate {
 
     var player: AVPlayer?
     var playerLayer: AVPlayerLayer?
